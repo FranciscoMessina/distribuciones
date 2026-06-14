@@ -13,7 +13,7 @@ import type {
   EntradaP,
   EntradaX,
 } from "./tipos"
-import { gamma, gammainc, cuantilPorBiseccion } from "./matematica"
+import { gamma, gammainc } from "./matematica"
 import { numeroLatex } from "./formato"
 
 export type ParamsWeibull = { beta: number; omega: number }
