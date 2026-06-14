@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "package:prepare": "bun run build && bun scripts/embed-dist.ts",
+    "package:standalone": "bun run package:prepare && bun build --compile --outfile=release/distribuciones standalone/server.ts",
+    "package:windows": "bun run package:prepare && bun build --compile --target=bun-windows-x64 --outfile=release/distribuciones-windows-x64.exe standalone/server.ts && bun build --compile --target=bun-windows-arm64 --outfile=release/distribuciones-windows-arm64.exe standalone/server.ts",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
