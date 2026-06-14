@@ -19,9 +19,7 @@ const continuousDistributions = [
   { title: "Gumbel mínimo", to: "/gumbel-minimo" },
   { title: "Gumbel máximo", to: "/gumbel-maximo" },
   { title: "Pareto", to: "/pareto" },
-  { title: "Uniforme", to: "/uniforme" },
   { title: "Normal", to: "/normal" },
-  { title: "Normal estándar", to: "/normal-estandar" },
   { title: "Log normal", to: "/log-normal" },
   { title: "Gamma", to: "/gamma" },
 ]
