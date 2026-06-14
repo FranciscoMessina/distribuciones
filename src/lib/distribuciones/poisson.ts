@@ -104,7 +104,7 @@ export const DistribucionPoisson: DistribucionSpec<ParamsPoisson> = {
     calcular({ m }) {
       return m
     },
-    formulaConValores({ m }, res) {
+    formulaConValores(_parametros, res) {
       return `E(r) = m = ${numeroLatex(res)}`
     },
   },
