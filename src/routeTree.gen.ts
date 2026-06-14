@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WeibullRouteImport } from './routes/weibull'
 import { Route as UniformeRouteImport } from './routes/uniforme'
+import { Route as PoissonRouteImport } from './routes/poisson'
 import { Route as ParetoRouteImport } from './routes/pareto'
 import { Route as NormalEstandarRouteImport } from './routes/normal-estandar'
 import { Route as NormalRouteImport } from './routes/normal'
@@ -30,6 +31,11 @@ const WeibullRoute = WeibullRouteImport.update({
 const UniformeRoute = UniformeRouteImport.update({
   id: '/uniforme',
   path: '/uniforme',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoissonRoute = PoissonRouteImport.update({
+  id: '/poisson',
+  path: '/poisson',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParetoRoute = ParetoRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/normal': typeof NormalRoute
   '/normal-estandar': typeof NormalEstandarRoute
   '/pareto': typeof ParetoRoute
+  '/poisson': typeof PoissonRoute
   '/uniforme': typeof UniformeRoute
   '/weibull': typeof WeibullRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/normal': typeof NormalRoute
   '/normal-estandar': typeof NormalEstandarRoute
   '/pareto': typeof ParetoRoute
+  '/poisson': typeof PoissonRoute
   '/uniforme': typeof UniformeRoute
   '/weibull': typeof WeibullRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/normal': typeof NormalRoute
   '/normal-estandar': typeof NormalEstandarRoute
   '/pareto': typeof ParetoRoute
+  '/poisson': typeof PoissonRoute
   '/uniforme': typeof UniformeRoute
   '/weibull': typeof WeibullRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/normal'
     | '/normal-estandar'
     | '/pareto'
+    | '/poisson'
     | '/uniforme'
     | '/weibull'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/normal'
     | '/normal-estandar'
     | '/pareto'
+    | '/poisson'
     | '/uniforme'
     | '/weibull'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/normal'
     | '/normal-estandar'
     | '/pareto'
+    | '/poisson'
     | '/uniforme'
     | '/weibull'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   NormalRoute: typeof NormalRoute
   NormalEstandarRoute: typeof NormalEstandarRoute
   ParetoRoute: typeof ParetoRoute
+  PoissonRoute: typeof PoissonRoute
   UniformeRoute: typeof UniformeRoute
   WeibullRoute: typeof WeibullRoute
 }
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/uniforme'
       fullPath: '/uniforme'
       preLoaderRoute: typeof UniformeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/poisson': {
+      id: '/poisson'
+      path: '/poisson'
+      fullPath: '/poisson'
+      preLoaderRoute: typeof PoissonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pareto': {
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   NormalRoute: NormalRoute,
   NormalEstandarRoute: NormalEstandarRoute,
   ParetoRoute: ParetoRoute,
+  PoissonRoute: PoissonRoute,
   UniformeRoute: UniformeRoute,
   WeibullRoute: WeibullRoute,
 }

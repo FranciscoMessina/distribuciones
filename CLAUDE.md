@@ -1,11 +1,13 @@
 # CLAUDE.md
 
+NEVER RUN THE DEV SERVER IT IS ALREADY RUNNING
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Commands
 
 ```bash
-bun run dev          # start dev server
+bun run dev          # start dev server NEVER USE THIS COMMAND, THE DEV SERVER IS ALREADY RUNNING
 bun run typecheck    # tsc --noEmit (no emit, fastest type check)
 bun run build        # tsc -b && vite build
 bun run lint         # eslint
@@ -74,3 +76,4 @@ File-based TanStack Router. Each route file exports `Route = createFileRoute("/s
 1. Fill any `NaN` TODOs in `src/lib/distribuciones/<slug>.ts`
 2. Create `src/components/distribuciones/<slug>-page.tsx` following `normal-page.tsx` or `weibull-page.tsx` as template
 3. Update `src/routes/<slug>.tsx` to import and render the new page instead of `DistributionPage`
+4. Unless the user EXPLICITLY requests it, never add additional components not found in the example pages, even if the prompt includes the formulas for them.

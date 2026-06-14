@@ -34,3 +34,6 @@ export type { ParamsLogNormal } from "./log-normal"
 
 export { DistribucionGamma } from "./gamma"
 export type { ParamsGamma } from "./gamma"
+
+export { DistribucionPoisson } from "./poisson"
+export type { ParamsPoisson } from "./poisson"

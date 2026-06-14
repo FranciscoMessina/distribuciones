@@ -24,6 +24,8 @@ const continuousDistributions = [
   { title: "Gamma", to: "/gamma" },
 ]
 
+const discreteDistributions = [{ title: "Poisson", to: "/poisson" }]
+
 export function AppSidebar() {
   return (
     <Sidebar>
@@ -38,6 +40,25 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {continuousDistributions.map((item) => (
+                <SidebarMenuItem key={item.to}>
+                  <SidebarMenuButton
+                    render={
+                      <Link to={item.to} activeOptions={{ exact: true }} />
+                    }
+                    className="aria-[current=page]:bg-primary/15 aria-[current=page]:text-primary"
+                  >
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Discretas</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {discreteDistributions.map((item) => (
                 <SidebarMenuItem key={item.to}>
                   <SidebarMenuButton
                     render={

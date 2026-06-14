@@ -1,34 +1,43 @@
 // ============================================================
 // Distribución Gumbel mínimo  X ~ GumbelMin(μ, β)
-// Parámetros: μ ∈ ℝ (ubicación), β > 0 (escala)
+// Parámetros: μ ∈ ℝ (ubicación/moda), β > 0 (escala)
 // Soporte: x ∈ (−∞, +∞)
 // Usada para modelar mínimos de muestras grandes.
-//
-// TODO: completar expectativas parciales y promedios truncados.
 // ============================================================
 
 import type { DistribucionSpec, EntradaDosColas, EntradaP, EntradaX } from "./tipos"
-import { EULER_MASCHERONI } from "./matematica"
+import { EULER_MASCHERONI, SQRT_2PI } from "./matematica"
 import { numeroLatex } from "./formato"
 
 export type ParamsGumbelMinimo = { mu: number; beta: number }
 
-const TODO_TEORIA = "Descripción teórica pendiente."
-const TODO_FORMULA = "\\text{(fórmula pendiente)}"
-
 function zG(x: number, mu: number, beta: number) {
   return (x - mu) / beta
+}
+
+// Expectativa parcial izquierda — aproximación analítica del libro
+// t = e^{(x-μ)/β}, F(x) = 1 - e^{-t}
+function hGMin(x: number, mu: number, beta: number): number {
+  const t = Math.exp(zG(x, mu, beta))
+  const F = 1 - Math.exp(-t)
+  const E = mu - beta * EULER_MASCHERONI
+  const cbrtT = Math.cbrt(t)
+  const correction =
+    (beta / SQRT_2PI) *
+    (cbrtT / 2 - 5 / 3) *
+    Math.exp(-0.5 * (3 * cbrtT - 8 / 3) ** 2)
+  return E * F + correction
 }
 
 export const DistribucionGumbelMinimo: DistribucionSpec<ParamsGumbelMinimo> = {
   slug: "gumbel-minimo",
   nombre: "Gumbel mínimo",
   descripcion:
-    "La distribución de Gumbel para mínimos modela el valor extremo mínimo. " +
-    "Es el reflejo de la Gumbel para máximos: si X ~ Gumbel máximo, entonces −X ~ Gumbel mínimo.",
+    "La distribución de Gumbel para mínimos modela el valor extremo mínimo de una muestra grande. " +
+    "Presenta asimetría negativa (coef. asimetría ≈ −1.14) a diferencia del modelo de máximos.",
 
   parametros: [
-    { clave: "mu", simbolo: "μ", etiqueta: "Ubicación (μ)" },
+    { clave: "mu", simbolo: "θ", etiqueta: "Ubicación (θ)" },
     { clave: "beta", simbolo: "β", etiqueta: "Escala (β)", min: 0 },
   ],
 
@@ -45,36 +54,45 @@ export const DistribucionGumbelMinimo: DistribucionSpec<ParamsGumbelMinimo> = {
     return mu + beta * Math.log(-Math.log(1 - p))
   },
 
+  // ── 1. Probabilidad acumulada izquierda ──────────────────
+
   probabilidadAcumuladaIzquierda: {
     titulo: "Probabilidad acumulada izquierda",
-    descripcionTeorica: TODO_TEORIA,
-    formulaGeneral: "P(X \\leq x) = 1 - e^{-e^{(x-\\mu)/\\beta}}",
+    descripcionTeorica:
+      "F(x) = P(X ≤ x). Para la Gumbel mínimo es el complemento de la doble exponencial.",
+    formulaGeneral: "F(x) = 1 - e^{-e^{(x-\\theta)/\\beta}}",
     calcular({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>) {
       return 1 - Math.exp(-Math.exp(zG(x, mu, beta)))
     },
     formulaConValores({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>, resultado: number) {
       const z = zG(x, mu, beta)
-      return `P(X \\leq ${numeroLatex(x)}) = 1 - e^{-e^{${numeroLatex(z)}}} = ${numeroLatex(resultado)}`
+      return `F(${numeroLatex(x)}) = 1 - e^{-e^{${numeroLatex(z)}}} = ${numeroLatex(resultado)}`
     },
   },
 
+  // ── 2. Probabilidad acumulada derecha ────────────────────
+
   probabilidadAcumuladaDerecha: {
     titulo: "Probabilidad acumulada derecha",
-    descripcionTeorica: TODO_TEORIA,
-    formulaGeneral: "P(X > x) = e^{-e^{(x-\\mu)/\\beta}}",
+    descripcionTeorica:
+      "G_{gm}(x) = P(X > x) = e^{-e^{(x-θ)/β}}. Es la función de distribución acumulada definida en el libro para este modelo.",
+    formulaGeneral: "G_{gm}(x) = e^{-e^{(x-\\theta)/\\beta}}",
     calcular({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>) {
       return Math.exp(-Math.exp(zG(x, mu, beta)))
     },
     formulaConValores({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>, resultado: number) {
       const z = zG(x, mu, beta)
-      return `P(X > ${numeroLatex(x)}) = e^{-e^{${numeroLatex(z)}}} = ${numeroLatex(resultado)}`
+      return `G_{gm}(${numeroLatex(x)}) = e^{-e^{${numeroLatex(z)}}} = ${numeroLatex(resultado)}`
     },
   },
 
+  // ── 3. Valor dado probabilidad izquierda ─────────────────
+
   valorDadaProbabilidadIzquierda: {
     titulo: "Valor dado probabilidad izquierda",
-    descripcionTeorica: TODO_TEORIA,
-    formulaGeneral: "x = \\mu + \\beta \\ln(-\\ln(1-p))",
+    descripcionTeorica:
+      "Cuantil x tal que P(X ≤ x) = α. Forma cerrada para la Gumbel mínimo.",
+    formulaGeneral: "x_{(\\alpha)} = \\theta + \\beta \\ln(-\\ln(1-\\alpha))",
     calcular({ params: { mu, beta }, p }: EntradaP<ParamsGumbelMinimo>) {
       return mu + beta * Math.log(-Math.log(1 - p))
     },
@@ -83,10 +101,13 @@ export const DistribucionGumbelMinimo: DistribucionSpec<ParamsGumbelMinimo> = {
     },
   },
 
+  // ── 4. Valor dado probabilidad derecha ───────────────────
+
   valorDadaProbabilidadDerecha: {
     titulo: "Valor dado probabilidad derecha",
-    descripcionTeorica: TODO_TEORIA,
-    formulaGeneral: "x = \\mu + \\beta \\ln(-\\ln p)",
+    descripcionTeorica:
+      "Cuantil x tal que P(X > x) = α, equivalente a P(X ≤ x) = 1 − α.",
+    formulaGeneral: "x = \\theta + \\beta \\ln(-\\ln \\alpha)",
     calcular({ params: { mu, beta }, p }: EntradaP<ParamsGumbelMinimo>) {
       return mu + beta * Math.log(-Math.log(p))
     },
@@ -95,45 +116,163 @@ export const DistribucionGumbelMinimo: DistribucionSpec<ParamsGumbelMinimo> = {
     },
   },
 
+  // ── 5. Expectativa parcial izquierda ─────────────────────
+
   expectativaParcialIzquierda: {
-    titulo: "Expectativa parcial izquierda",
-    descripcionTeorica: TODO_TEORIA,
-    formulaGeneral: TODO_FORMULA,
-    calcular(_: EntradaX<ParamsGumbelMinimo>) { return NaN },
-    formulaConValores(_: EntradaX<ParamsGumbelMinimo>, r: number) { return `${numeroLatex(r)}` },
+    titulo: "Expectativa parcial izquierda \n H(x)",
+    descripcionTeorica:
+      "H_{gm}(x) = ∫₋∞ˣ t·f(t) dt. Se calcula mediante la aproximación analítica del libro con t = e^{(x−θ)/β}.",
+    formulaGeneral:
+      "H_{gm}(x) \\approx (\\theta - \\beta \\gamma)(1 - e^{-t}) + " +
+      "\\frac{\\beta}{\\sqrt{2\\pi}} \\left(\\frac{t^{1/3}}{2} - \\frac{5}{3}\\right) " +
+      "e^{-\\frac{1}{2}\\left(3t^{1/3} - \\frac{8}{3}\\right)^2}",
+    calcular({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>) {
+      return hGMin(x, mu, beta)
+    },
+    formulaConValores({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>, resultado: number) {
+      const t = Math.exp(zG(x, mu, beta))
+      return (
+        `t = e^{(${numeroLatex(x)} - ${numeroLatex(mu)})/${numeroLatex(beta)}} = ${numeroLatex(t)} \\quad` +
+        `H_{gm}(${numeroLatex(x)}) \\approx ${numeroLatex(resultado)}`
+      )
+    },
   },
 
+  // ── 6. Expectativa parcial derecha ───────────────────────
+
   expectativaParcialDerecha: {
-    titulo: "Expectativa parcial derecha",
-    descripcionTeorica: TODO_TEORIA,
-    formulaGeneral: TODO_FORMULA,
-    calcular(_: EntradaX<ParamsGumbelMinimo>) { return NaN },
-    formulaConValores(_: EntradaX<ParamsGumbelMinimo>, r: number) { return `${numeroLatex(r)}` },
+    titulo: "Expectativa parcial derecha \n J(x)",
+    descripcionTeorica:
+      "J_{gm}(x) = E[X] − H_{gm}(x). La suma de ambas expectativas parciales es igual a la esperanza.",
+    formulaGeneral: "J_{gm}(x) = (\\theta - \\beta \\gamma) - H_{gm}(x)",
+    calcular({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>) {
+      const E = mu - beta * EULER_MASCHERONI
+      return E - hGMin(x, mu, beta)
+    },
+    formulaConValores({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>, resultado: number) {
+      const E = mu - beta * EULER_MASCHERONI
+      const H = hGMin(x, mu, beta)
+      return `J_{gm}(${numeroLatex(x)}) = ${numeroLatex(E)} - ${numeroLatex(H)} = ${numeroLatex(resultado)}`
+    },
   },
+
+  // ── 7. Promedio truncado izquierdo ────────────────────────
 
   promedioTruncadoIzquierdo: {
     titulo: "Promedio truncado izquierdo",
-    descripcionTeorica: TODO_TEORIA,
-    formulaGeneral: TODO_FORMULA,
-    calcular(_: EntradaX<ParamsGumbelMinimo>) { return NaN },
-    formulaConValores(_: EntradaX<ParamsGumbelMinimo>, r: number) { return `${numeroLatex(r)}` },
+    descripcionTeorica: "Media condicional E[X | X ≤ x] = H_{gm}(x) / F(x).",
+    formulaGeneral: "E[X \\mid X \\leq x] = \\frac{H_{gm}(x)}{F(x)}",
+    calcular({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>) {
+      const F = 1 - Math.exp(-Math.exp(zG(x, mu, beta)))
+      if (F === 0) return -Infinity
+      return hGMin(x, mu, beta) / F
+    },
+    formulaConValores({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>, resultado: number) {
+      const F = 1 - Math.exp(-Math.exp(zG(x, mu, beta)))
+      const H = hGMin(x, mu, beta)
+      return `E[X \\mid X \\leq ${numeroLatex(x)}] = \\frac{${numeroLatex(H)}}{${numeroLatex(F)}} = ${numeroLatex(resultado)}`
+    },
   },
+
+  // ── 8. Promedio truncado derecho ──────────────────────────
 
   promedioTruncadoDerecho: {
     titulo: "Promedio truncado derecho",
-    descripcionTeorica: TODO_TEORIA,
-    formulaGeneral: TODO_FORMULA,
-    calcular(_: EntradaX<ParamsGumbelMinimo>) { return NaN },
-    formulaConValores(_: EntradaX<ParamsGumbelMinimo>, r: number) { return `${numeroLatex(r)}` },
+    descripcionTeorica: "Media condicional E[X | X > x] = (E[X] − H_{gm}(x)) / (1 − F(x)).",
+    formulaGeneral:
+      "E[X \\mid X > x] = \\frac{(\\theta - \\beta \\gamma) - H_{gm}(x)}{1 - F(x)}",
+    calcular({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>) {
+      const F = 1 - Math.exp(-Math.exp(zG(x, mu, beta)))
+      const complement = 1 - F
+      if (complement === 0) return Infinity
+      const E = mu - beta * EULER_MASCHERONI
+      return (E - hGMin(x, mu, beta)) / complement
+    },
+    formulaConValores({ params: { mu, beta }, x }: EntradaX<ParamsGumbelMinimo>, resultado: number) {
+      const F = 1 - Math.exp(-Math.exp(zG(x, mu, beta)))
+      const E = mu - beta * EULER_MASCHERONI
+      const H = hGMin(x, mu, beta)
+      return (
+        `E[X \\mid X > ${numeroLatex(x)}] = ` +
+        `\\frac{${numeroLatex(E)} - ${numeroLatex(H)}}{1 - ${numeroLatex(F)}} = ${numeroLatex(resultado)}`
+      )
+    },
   },
+
+  // ── 9. Promedio truncado dos colas ────────────────────────
 
   promedioTruncadoDosColas: {
     titulo: "Promedio truncado a dos colas",
-    descripcionTeorica: TODO_TEORIA,
-    formulaGeneral: TODO_FORMULA,
-    calcular(_: EntradaDosColas<ParamsGumbelMinimo>) { return NaN },
-    formulaConValores(_: EntradaDosColas<ParamsGumbelMinimo>, r: number) { return `${numeroLatex(r)}` },
+    descripcionTeorica: "Media condicional E[X | a ≤ X ≤ b] = (H_{gm}(b) − H_{gm}(a)) / (F(b) − F(a)).",
+    formulaGeneral:
+      "E[X \\mid a \\leq X \\leq b] = \\frac{H_{gm}(b) - H_{gm}(a)}{F(b) - F(a)}",
+    calcular({ params: { mu, beta }, a, b }: EntradaDosColas<ParamsGumbelMinimo>) {
+      const Fb = 1 - Math.exp(-Math.exp(zG(b, mu, beta)))
+      const Fa = 1 - Math.exp(-Math.exp(zG(a, mu, beta)))
+      const dF = Fb - Fa
+      if (dF === 0) return NaN
+      return (hGMin(b, mu, beta) - hGMin(a, mu, beta)) / dF
+    },
+    formulaConValores({ params: { mu, beta }, a, b }: EntradaDosColas<ParamsGumbelMinimo>, resultado: number) {
+      const Hb = hGMin(b, mu, beta)
+      const Ha = hGMin(a, mu, beta)
+      const Fb = 1 - Math.exp(-Math.exp(zG(b, mu, beta)))
+      const Fa = 1 - Math.exp(-Math.exp(zG(a, mu, beta)))
+      return (
+        `E[X \\mid ${numeroLatex(a)} \\leq X \\leq ${numeroLatex(b)}] = ` +
+        `\\frac{${numeroLatex(Hb)} - ${numeroLatex(Ha)}}{${numeroLatex(Fb)} - ${numeroLatex(Fa)}} = ${numeroLatex(resultado)}`
+      )
+    },
   },
+
+  // ── Esperanza y desvío ────────────────────────────────────
+
+  esperanza: {
+    titulo: "Esperanza E[X]",
+    descripcionTeorica:
+      "La esperanza es θ − β·γ, donde γ ≈ 0.5772 es la constante de Euler-Mascheroni.",
+    formulaGeneral: "E[X] = \\theta - \\beta \\cdot \\gamma",
+    calcular({ mu, beta }: ParamsGumbelMinimo) {
+      return mu - beta * EULER_MASCHERONI
+    },
+    formulaConValores({ mu, beta }: ParamsGumbelMinimo, resultado: number) {
+      return `E[X] = ${numeroLatex(mu)} - ${numeroLatex(beta)} \\cdot ${numeroLatex(EULER_MASCHERONI)} = ${numeroLatex(resultado)}`
+    },
+  },
+
+  desvio: {
+    titulo: "Desvío estándar σ",
+    descripcionTeorica: "El desvío estándar de la distribución Gumbel mínimo es π·β/√6.",
+    formulaGeneral: "\\sigma = \\frac{\\pi \\cdot \\beta}{\\sqrt{6}}",
+    calcular({ beta }: ParamsGumbelMinimo) {
+      return (Math.PI * beta) / Math.sqrt(6)
+    },
+    formulaConValores({ beta }: ParamsGumbelMinimo, resultado: number) {
+      return `\\sigma = \\frac{\\pi \\cdot ${numeroLatex(beta)}}{\\sqrt{6}} = ${numeroLatex(resultado)}`
+    },
+  },
+
+  // ── Probabilidad en intervalo ─────────────────────────────
+
+  probabilidadIntervalo: {
+    titulo: "Probabilidad en intervalo",
+    descripcionTeorica: "P(a ≤ X ≤ b) = F(b) − F(a).",
+    formulaGeneral:
+      "P(a \\leq X \\leq b) = e^{-e^{(a-\\theta)/\\beta}} - e^{-e^{(b-\\theta)/\\beta}}",
+    calcular({ params: { mu, beta }, a, b }: EntradaDosColas<ParamsGumbelMinimo>) {
+      return (
+        Math.exp(-Math.exp(zG(a, mu, beta))) -
+        Math.exp(-Math.exp(zG(b, mu, beta)))
+      )
+    },
+    formulaConValores({ params: { mu, beta }, a, b }: EntradaDosColas<ParamsGumbelMinimo>, resultado: number) {
+      const Ga = Math.exp(-Math.exp(zG(a, mu, beta)))
+      const Gb = Math.exp(-Math.exp(zG(b, mu, beta)))
+      return `P(${numeroLatex(a)} \\leq X \\leq ${numeroLatex(b)}) = ${numeroLatex(Ga)} - ${numeroLatex(Gb)} = ${numeroLatex(resultado)}`
+    },
+  },
+
+  // ── Derivación de parámetros ──────────────────────────────
 
   derivacionesDeParametros: [
     {
@@ -154,8 +293,8 @@ export const DistribucionGumbelMinimo: DistribucionSpec<ParamsGumbelMinimo> = {
               conValores: `\\beta = \\frac{${numeroLatex(desvio)} \\cdot \\sqrt{6}}{\\pi} = ${numeroLatex(beta)}`,
             },
             {
-              general: "\\mu = \\bar{x} + \\beta \\cdot \\gamma",
-              conValores: `\\mu = ${numeroLatex(media)} + ${numeroLatex(beta)} \\cdot ${numeroLatex(EULER_MASCHERONI)} = ${numeroLatex(mu)}`,
+              general: "\\theta = \\bar{x} + \\beta \\cdot \\gamma",
+              conValores: `\\theta = ${numeroLatex(media)} + ${numeroLatex(beta)} \\cdot ${numeroLatex(EULER_MASCHERONI)} = ${numeroLatex(mu)}`,
             },
           ],
         }

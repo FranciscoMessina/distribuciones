@@ -1,17 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createFileRoute } from "@tanstack/react-router"
 
-import { DistributionPage } from "@/components/distribution-page"
+import { GumbelMaximoDistributionPage } from "@/components/distribuciones/gumbel-maximo-page"
 
 export const Route = createFileRoute("/gumbel-maximo")({
-  component: GumbelMaximoPage,
+  component: GumbelMaximoDistributionPage,
 })
-
-function GumbelMaximoPage() {
-  return (
-    <DistributionPage
-      title="Gumbel máximo"
-      description="Revisa la versión máxima de la distribución de Gumbel."
-    />
-  )
-}
