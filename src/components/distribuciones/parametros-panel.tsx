@@ -88,7 +88,7 @@ export function ParametrosPanel<P extends Record<string, number>>({
   )
 
   const emitDerivacion = useCallback(
-    (idx: number, vals: string[], derivacion: DerivacionDeParametros<P>) => {
+    (_: number, vals: string[], derivacion: DerivacionDeParametros<P>) => {
       if (!todosValidos(vals, derivacion.inputs)) {
         setPasos([])
         onParamsChange(null)

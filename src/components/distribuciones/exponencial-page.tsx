@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { DistribucionExponencial, type ParamsExponencial } from "@/lib/distribuciones"
-import { numeroLatex } from "@/lib/distribuciones/formato"
+import {
+  DistribucionExponencial,
+  type ParamsExponencial,
+} from "@/lib/distribuciones"
 
 import { ExponencialChart } from "./exponencial-chart"
 import { ParametrosPanel } from "./parametros-panel"
@@ -58,17 +60,35 @@ export function ExponencialDistributionPage() {
 
   const E = DistribucionExponencial
 
-  const probIzq = calcOrNull(xInput, (i) => E.probabilidadAcumuladaIzquierda.calcular(i))
-  const probDer = calcOrNull(xInput, (i) => E.probabilidadAcumuladaDerecha.calcular(i))
-  const expIzq = calcOrNull(xInput, (i) => E.expectativaParcialIzquierda.calcular(i))
-  const expDer = calcOrNull(xInput, (i) => E.expectativaParcialDerecha.calcular(i))
-  const promIzq = calcOrNull(xInput, (i) => E.promedioTruncadoIzquierdo.calcular(i))
-  const promDer = calcOrNull(xInput, (i) => E.promedioTruncadoDerecho.calcular(i))
+  const probIzq = calcOrNull(xInput, (i) =>
+    E.probabilidadAcumuladaIzquierda.calcular(i)
+  )
+  const probDer = calcOrNull(xInput, (i) =>
+    E.probabilidadAcumuladaDerecha.calcular(i)
+  )
+  const expIzq = calcOrNull(xInput, (i) =>
+    E.expectativaParcialIzquierda.calcular(i)
+  )
+  const expDer = calcOrNull(xInput, (i) =>
+    E.expectativaParcialDerecha.calcular(i)
+  )
+  const promIzq = calcOrNull(xInput, (i) =>
+    E.promedioTruncadoIzquierdo.calcular(i)
+  )
+  const promDer = calcOrNull(xInput, (i) =>
+    E.promedioTruncadoDerecho.calcular(i)
+  )
 
-  const valProbIzq = calcOrNull(pInput, (i) => E.valorDadaProbabilidadIzquierda.calcular(i))
-  const valProbDer = calcOrNull(pInput, (i) => E.valorDadaProbabilidadDerecha.calcular(i))
+  const valProbIzq = calcOrNull(pInput, (i) =>
+    E.valorDadaProbabilidadIzquierda.calcular(i)
+  )
+  const valProbDer = calcOrNull(pInput, (i) =>
+    E.valorDadaProbabilidadDerecha.calcular(i)
+  )
 
-  const promDosColas = calcOrNull(abInput, (i) => E.promedioTruncadoDosColas.calcular(i))
+  const promDosColas = calcOrNull(abInput, (i) =>
+    E.promedioTruncadoDosColas.calcular(i)
+  )
 
   function formulaValoresX(
     calculo: (typeof E)["probabilidadAcumuladaIzquierda"],
@@ -133,9 +153,14 @@ export function ExponencialDistributionPage() {
                 esProbabilidad
                 formulaInfo={{
                   titulo: E.probabilidadAcumuladaIzquierda.titulo,
-                  descripcionTeorica: E.probabilidadAcumuladaIzquierda.descripcionTeorica,
-                  formulaGeneral: E.probabilidadAcumuladaIzquierda.formulaGeneral,
-                  formulaConValores: formulaValoresX(E.probabilidadAcumuladaIzquierda, probIzq),
+                  descripcionTeorica:
+                    E.probabilidadAcumuladaIzquierda.descripcionTeorica,
+                  formulaGeneral:
+                    E.probabilidadAcumuladaIzquierda.formulaGeneral,
+                  formulaConValores: formulaValoresX(
+                    E.probabilidadAcumuladaIzquierda,
+                    probIzq
+                  ),
                 }}
               />
               <ResultadoFila
@@ -144,9 +169,13 @@ export function ExponencialDistributionPage() {
                 esProbabilidad
                 formulaInfo={{
                   titulo: E.probabilidadAcumuladaDerecha.titulo,
-                  descripcionTeorica: E.probabilidadAcumuladaDerecha.descripcionTeorica,
+                  descripcionTeorica:
+                    E.probabilidadAcumuladaDerecha.descripcionTeorica,
                   formulaGeneral: E.probabilidadAcumuladaDerecha.formulaGeneral,
-                  formulaConValores: formulaValoresX(E.probabilidadAcumuladaDerecha, probDer),
+                  formulaConValores: formulaValoresX(
+                    E.probabilidadAcumuladaDerecha,
+                    probDer
+                  ),
                 }}
               />
             </div>
@@ -167,36 +196,44 @@ export function ExponencialDistributionPage() {
                       formulaConValores: `Mo = 0`,
                     }}
                   />
-                  {E.esperanza && (() => {
-                    const esp = E.esperanza.calcular(params)
-                    return (
-                      <ResultadoFila
-                        titulo={E.esperanza.titulo}
-                        valor={esp}
-                        formulaInfo={{
-                          titulo: E.esperanza.titulo,
-                          descripcionTeorica: E.esperanza.descripcionTeorica,
-                          formulaGeneral: E.esperanza.formulaGeneral,
-                          formulaConValores: E.esperanza.formulaConValores(params, esp),
-                        }}
-                      />
-                    )
-                  })()}
-                  {E.desvio && (() => {
-                    const dev = E.desvio.calcular(params)
-                    return (
-                      <ResultadoFila
-                        titulo={E.desvio.titulo}
-                        valor={dev}
-                        formulaInfo={{
-                          titulo: E.desvio.titulo,
-                          descripcionTeorica: E.desvio.descripcionTeorica,
-                          formulaGeneral: E.desvio.formulaGeneral,
-                          formulaConValores: E.desvio.formulaConValores(params, dev),
-                        }}
-                      />
-                    )
-                  })()}
+                  {E.esperanza &&
+                    (() => {
+                      const esp = E.esperanza.calcular(params)
+                      return (
+                        <ResultadoFila
+                          titulo={E.esperanza.titulo}
+                          valor={esp}
+                          formulaInfo={{
+                            titulo: E.esperanza.titulo,
+                            descripcionTeorica: E.esperanza.descripcionTeorica,
+                            formulaGeneral: E.esperanza.formulaGeneral,
+                            formulaConValores: E.esperanza.formulaConValores(
+                              params,
+                              esp
+                            ),
+                          }}
+                        />
+                      )
+                    })()}
+                  {E.desvio &&
+                    (() => {
+                      const dev = E.desvio.calcular(params)
+                      return (
+                        <ResultadoFila
+                          titulo={E.desvio.titulo}
+                          valor={dev}
+                          formulaInfo={{
+                            titulo: E.desvio.titulo,
+                            descripcionTeorica: E.desvio.descripcionTeorica,
+                            formulaGeneral: E.desvio.formulaGeneral,
+                            formulaConValores: E.desvio.formulaConValores(
+                              params,
+                              dev
+                            ),
+                          }}
+                        />
+                      )
+                    })()}
                 </div>
                 <Separator />
               </>
@@ -208,9 +245,13 @@ export function ExponencialDistributionPage() {
                 valor={expIzq}
                 formulaInfo={{
                   titulo: E.expectativaParcialIzquierda.titulo,
-                  descripcionTeorica: E.expectativaParcialIzquierda.descripcionTeorica,
+                  descripcionTeorica:
+                    E.expectativaParcialIzquierda.descripcionTeorica,
                   formulaGeneral: E.expectativaParcialIzquierda.formulaGeneral,
-                  formulaConValores: formulaValoresX(E.expectativaParcialIzquierda, expIzq),
+                  formulaConValores: formulaValoresX(
+                    E.expectativaParcialIzquierda,
+                    expIzq
+                  ),
                 }}
               />
               <ResultadoFila
@@ -218,9 +259,13 @@ export function ExponencialDistributionPage() {
                 valor={expDer}
                 formulaInfo={{
                   titulo: E.expectativaParcialDerecha.titulo,
-                  descripcionTeorica: E.expectativaParcialDerecha.descripcionTeorica,
+                  descripcionTeorica:
+                    E.expectativaParcialDerecha.descripcionTeorica,
                   formulaGeneral: E.expectativaParcialDerecha.formulaGeneral,
-                  formulaConValores: formulaValoresX(E.expectativaParcialDerecha, expDer),
+                  formulaConValores: formulaValoresX(
+                    E.expectativaParcialDerecha,
+                    expDer
+                  ),
                 }}
               />
             </div>
@@ -233,9 +278,13 @@ export function ExponencialDistributionPage() {
                 valor={promIzq}
                 formulaInfo={{
                   titulo: E.promedioTruncadoIzquierdo.titulo,
-                  descripcionTeorica: E.promedioTruncadoIzquierdo.descripcionTeorica,
+                  descripcionTeorica:
+                    E.promedioTruncadoIzquierdo.descripcionTeorica,
                   formulaGeneral: E.promedioTruncadoIzquierdo.formulaGeneral,
-                  formulaConValores: formulaValoresX(E.promedioTruncadoIzquierdo, promIzq),
+                  formulaConValores: formulaValoresX(
+                    E.promedioTruncadoIzquierdo,
+                    promIzq
+                  ),
                 }}
               />
               <ResultadoFila
@@ -243,9 +292,13 @@ export function ExponencialDistributionPage() {
                 valor={promDer}
                 formulaInfo={{
                   titulo: E.promedioTruncadoDerecho.titulo,
-                  descripcionTeorica: E.promedioTruncadoDerecho.descripcionTeorica,
+                  descripcionTeorica:
+                    E.promedioTruncadoDerecho.descripcionTeorica,
                   formulaGeneral: E.promedioTruncadoDerecho.formulaGeneral,
-                  formulaConValores: formulaValoresX(E.promedioTruncadoDerecho, promDer),
+                  formulaConValores: formulaValoresX(
+                    E.promedioTruncadoDerecho,
+                    promDer
+                  ),
                 }}
               />
             </div>
@@ -288,9 +341,14 @@ export function ExponencialDistributionPage() {
                 valor={valProbIzq}
                 formulaInfo={{
                   titulo: E.valorDadaProbabilidadIzquierda.titulo,
-                  descripcionTeorica: E.valorDadaProbabilidadIzquierda.descripcionTeorica,
-                  formulaGeneral: E.valorDadaProbabilidadIzquierda.formulaGeneral,
-                  formulaConValores: formulaValoresP(E.valorDadaProbabilidadIzquierda, valProbIzq),
+                  descripcionTeorica:
+                    E.valorDadaProbabilidadIzquierda.descripcionTeorica,
+                  formulaGeneral:
+                    E.valorDadaProbabilidadIzquierda.formulaGeneral,
+                  formulaConValores: formulaValoresP(
+                    E.valorDadaProbabilidadIzquierda,
+                    valProbIzq
+                  ),
                 }}
               />
               <ResultadoFila
@@ -298,9 +356,13 @@ export function ExponencialDistributionPage() {
                 valor={valProbDer}
                 formulaInfo={{
                   titulo: E.valorDadaProbabilidadDerecha.titulo,
-                  descripcionTeorica: E.valorDadaProbabilidadDerecha.descripcionTeorica,
+                  descripcionTeorica:
+                    E.valorDadaProbabilidadDerecha.descripcionTeorica,
                   formulaGeneral: E.valorDadaProbabilidadDerecha.formulaGeneral,
-                  formulaConValores: formulaValoresP(E.valorDadaProbabilidadDerecha, valProbDer),
+                  formulaConValores: formulaValoresP(
+                    E.valorDadaProbabilidadDerecha,
+                    valProbDer
+                  ),
                 }}
               />
             </div>
@@ -376,11 +438,15 @@ export function ExponencialDistributionPage() {
                       esProbabilidad
                       formulaInfo={{
                         titulo: E.probabilidadIntervalo.titulo,
-                        descripcionTeorica: E.probabilidadIntervalo.descripcionTeorica,
+                        descripcionTeorica:
+                          E.probabilidadIntervalo.descripcionTeorica,
                         formulaGeneral: E.probabilidadIntervalo.formulaGeneral,
                         formulaConValores:
                           probInt !== null && abInput !== null
-                            ? E.probabilidadIntervalo.formulaConValores(abInput, probInt)
+                            ? E.probabilidadIntervalo.formulaConValores(
+                                abInput,
+                                probInt
+                              )
                             : undefined,
                       }}
                     />
@@ -391,11 +457,15 @@ export function ExponencialDistributionPage() {
                 valor={promDosColas}
                 formulaInfo={{
                   titulo: E.promedioTruncadoDosColas.titulo,
-                  descripcionTeorica: E.promedioTruncadoDosColas.descripcionTeorica,
+                  descripcionTeorica:
+                    E.promedioTruncadoDosColas.descripcionTeorica,
                   formulaGeneral: E.promedioTruncadoDosColas.formulaGeneral,
                   formulaConValores:
                     promDosColas !== null && abInput !== null
-                      ? E.promedioTruncadoDosColas.formulaConValores(abInput, promDosColas)
+                      ? E.promedioTruncadoDosColas.formulaConValores(
+                          abInput,
+                          promDosColas
+                        )
                       : undefined,
                 }}
               />
