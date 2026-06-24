@@ -90,9 +90,7 @@ export const DistribucionLogNormal: DistribucionSpec<ParamsLogNormal> = {
     },
     formulaConValores({ mu, sigma }: ParamsLogNormal, resultado: number) {
       const mu_r = mediaReal(mu, sigma)
-      return (
-        `\\sigma_r = ${numeroLatex(mu_r)} \\cdot \\sqrt{e^{${numeroLatex(sigma)}^2}-1} = ${numeroLatex(resultado)}`
-      )
+      return `\\sigma_r = ${numeroLatex(mu_r)} \\cdot \\sqrt{e^{${numeroLatex(sigma)}^2}-1} = ${numeroLatex(resultado)}`
     },
   },
 
@@ -164,9 +162,7 @@ export const DistribucionLogNormal: DistribucionSpec<ParamsLogNormal> = {
       resultado: number
     ) {
       const z = cuantilNormalEstandar(p)
-      return (
-        `x_{(${numeroLatex(p)})} = e^{${numeroLatex(mu)} + ${numeroLatex(z)} \\cdot ${numeroLatex(sigma)}} = ${numeroLatex(resultado)}`
-      )
+      return `x_{(${numeroLatex(p)})} = e^{${numeroLatex(mu)} + ${numeroLatex(z)} \\cdot ${numeroLatex(sigma)}} = ${numeroLatex(resultado)}`
     },
   },
 
@@ -186,9 +182,7 @@ export const DistribucionLogNormal: DistribucionSpec<ParamsLogNormal> = {
       resultado: number
     ) {
       const z = cuantilNormalEstandar(1 - p)
-      return (
-        `x = e^{${numeroLatex(mu)} + ${numeroLatex(z)} \\cdot ${numeroLatex(sigma)}} = ${numeroLatex(resultado)}`
-      )
+      return `x = e^{${numeroLatex(mu)} + ${numeroLatex(z)} \\cdot ${numeroLatex(sigma)}} = ${numeroLatex(resultado)}`
     },
   },
 
@@ -371,7 +365,11 @@ export const DistribucionLogNormal: DistribucionSpec<ParamsLogNormal> = {
       "como la diferencia de acumuladas: F_LN(b) − F_LN(a).",
     formulaGeneral:
       "P(a \\leq X \\leq b) = F_{LN}(b/m;D) - F_{LN}(a/m;D) = \\Phi(z_b) - \\Phi(z_a)",
-    calcular({ params: { mu, sigma }, a, b }: EntradaDosColas<ParamsLogNormal>) {
+    calcular({
+      params: { mu, sigma },
+      a,
+      b,
+    }: EntradaDosColas<ParamsLogNormal>) {
       const Fa = a > 0 ? Phi(zLN(a, mu, sigma)) : 0
       const Fb = b > 0 ? Phi(zLN(b, mu, sigma)) : 0
       return Fb - Fa
@@ -410,12 +408,13 @@ export const DistribucionLogNormal: DistribucionSpec<ParamsLogNormal> = {
           pasos: [
             {
               general:
-                "D = \\sqrt{\\ln\\!\\left(1 + \\frac{\\sigma^2}{\\mu^2}\\right)}",
-              conValores: `D = \\sqrt{\\ln\\!\\left(1 + \\frac{${numeroLatex(desvio)}^2}{${numeroLatex(media)}^2}\\right)} = ${numeroLatex(sigmaLN)}`,
+                "m = \\ln\\!\\left(\\frac{\\mu}{\\sqrt{1 + \\left(\\frac{\\sigma}{\\mu}\\right)^2}}\\right)",
+              conValores: `m = \\ln\\!\\left(\\frac{${numeroLatex(media)}}{\\sqrt{1 + \\left(\\frac{${numeroLatex(desvio)}}{${numeroLatex(media)}}\\right)^2}}\\right) = ${numeroLatex(muLN)}`,
             },
             {
-              general: "m = \\ln(\\mu) - \\frac{D^2}{2}",
-              conValores: `m = \\ln(${numeroLatex(media)}) - \\frac{${numeroLatex(sigmaLN)}^2}{2} = ${numeroLatex(muLN)}`,
+              general:
+                "D^2 = \\ln\\!\\left(1 + \\left(\\frac{\\sigma}{\\mu}\\right)^2\\right), \\quad D = \\sqrt{D^2}",
+              conValores: `D^2 = \\ln\\!\\left(1 + \\left(\\frac{${numeroLatex(desvio)}}{${numeroLatex(media)}}\\right)^2\\right) = ${numeroLatex(sigmaSq)}, \\quad D = ${numeroLatex(sigmaLN)}`,
             },
           ],
         }

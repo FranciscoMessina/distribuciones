@@ -375,18 +375,19 @@ export const DistribucionPareto: DistribucionSpec<ParamsPareto> = {
 
   derivacionesDeParametros: [
     {
-      etiquetaBoton: "Moda y mediana",
+      etiquetaBoton: "Moda y media",
       inputs: [
         { etiqueta: "Moda (Mo = θ)", placeholder: "Mo", min: 0 },
-        { etiqueta: "Mediana (Me)", placeholder: "Me", min: 0 },
+        { etiqueta: "Media (μ)", placeholder: "μ", min: 0 },
       ],
-      derivar([mo, me]) {
+      derivar([mo, mu]) {
         // Mo = θ  →  θ = Mo
-        // Me = θ · 2^(1/b)  →  b = ln(2) / ln(Me/θ)
-        // Requires Me > Mo (median always exceeds mode for Pareto)
-        if (me <= mo) return null
+        // μ = θ·b/(b-1)  →  b = μ/(μ - θ)
+        // Requires μ > Mo and b > 1
+        if (mu <= mo) return null
         const thetaVal = mo
-        const bVal = Math.log(2) / Math.log(me / mo)
+        const bVal = mu / (mu - mo)
+        if (bVal <= 1) return null
         return {
           params: { theta: thetaVal, b: bVal },
           pasos: [
@@ -395,8 +396,8 @@ export const DistribucionPareto: DistribucionSpec<ParamsPareto> = {
               conValores: `\\theta = ${numeroLatex(thetaVal)}`,
             },
             {
-              general: "b = \\frac{\\ln 2}{\\ln(Me / \\theta)}",
-              conValores: `b = \\frac{\\ln 2}{\\ln(${numeroLatex(me)} / ${numeroLatex(mo)})} = ${numeroLatex(bVal)}`,
+              general: "b = \\frac{\\mu}{\\mu - \\theta}",
+              conValores: `b = \\frac{${numeroLatex(mu)}}{${numeroLatex(mu)} - ${numeroLatex(mo)}} = ${numeroLatex(bVal)}`,
             },
           ],
         }
